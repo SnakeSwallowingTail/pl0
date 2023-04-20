@@ -1,6 +1,6 @@
 #include"pl0.h"
 #include<string.h>
-
+ 
 #define stacksize 500
 int main()
 {
@@ -101,6 +101,7 @@ void init(void)
 	strcpy(&(word[10][0]),"var");
 	strcpy(&(word[11][0]),"while");
 	strcpy(&(word[12][0]),"write");
+	strcpy(&(word[13][0]),"<>");
 
 	/*ÉèÖÃ±£Áô×Ö·ûºÅ*/
 	wsym[0]=beginsym;
@@ -116,6 +117,7 @@ void init(void)
 	wsym[10]=varsym;
 	wsym[11]=whilesym;
 	wsym[12]=writesym;
+	wsym[13]=neq;
 
 	/*ÉèÖÃÖ¸ÁîÃû³Æ*/
 	strcpy(&(mnemonic[lit][0]),"lit");
@@ -334,6 +336,11 @@ int getsym()
 					if(ch=='=')
 					{
 						sym=leq;
+						getchdo;
+					}
+					else if(ch=='>')
+					{
+						sym=neq;
 						getchdo;
 					}
 					else
