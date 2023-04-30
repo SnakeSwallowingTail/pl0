@@ -320,9 +320,9 @@ int getsym()
 				error(30);
 			}
 		}
-		else
+		else//检测是否为符号:以冒号/+/-/条件运算符开头 
 		{
-			if(ch==':') /*检测复制符号*/
+			if(ch==':')/*检测复制符号*/
 			{
 				getchdo;
 				if(ch=='=')
@@ -335,7 +335,7 @@ int getsym()
 					sym=nul; /*不能识别的符号*/
 				}
 			}
-			else
+			else if(ch=='<'||ch=='>')/*检测条件运算符*/
 			{
 				if(ch=='<') /*检测小于或小于等于符号*/
 				{
@@ -358,33 +358,70 @@ int getsym()
 				}
 				else
 				{
-					if(ch=='>')
+					getchdo;
+					if(ch=='=')
 					{
+						sym=geq;
 						getchdo;
-						if(ch=='=')
-						{
-							sym=geq;
-							getchdo;
-						}
-						else
-						{
-							sym=gtr;
-						}
 					}
 					else
 					{
-						sym=ssym[ch]; /*当符号不满足上述条件时，全部按照单字符符号处理*/;
-						//getchdo;
-						//richard
-						if(sym!=period)
-						{
-							getchdo;
-						}
-						//end richard;
+						sym=gtr;
 					}
 				}
 			}
+			else if(ch=='+'||ch=='-')/*检测加减运算符*/
+			{
+				if(ch=='+')
+				{
+					getchdo;
+					if(ch=='=')
+					{
+						sym=peql; 
+						getchdo;
+					}
+					else if(ch=='+')
+					{
+						sym=inc;
+						getchdo;
+					}
+					else
+					{
+						sym=plus;
+					}
+				}
+				else if(ch=='-')
+				{
+					getchdo;
+					if(ch=='=')
+					{
+						sym=meql; 
+						getchdo;
+					}
+					else if(ch=='+')
+					{
+						sym=dec;
+						getchdo;
+					}
+					else
+					{
+						sym=minus;
+					}
+				}
+			}
+			else
+			{
+				sym=ssym[ch]; /*当符号不满足上述条件时，全部按照单字符符号处理*/;
+				//getchdo;
+				//richard
+				if(sym!=period)
+				{
+					getchdo;
+				}
+				//end richard;
+			}
 		}
+		
 	}
 	return 0;
 }
