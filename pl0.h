@@ -9,7 +9,7 @@ typedef enum
 }bool;
 */
 
-#define norw 13   /* 关键字个数*/
+#define norw 17   /* 关键字个数*/
 #define txmax 100 /* 名字表容量*/
 #define nmax 14   /* number的最大位数*/
 #define al 10     /* 符号的最大长度*/
@@ -31,7 +31,7 @@ enum symbol
 	peql,     meql,    inc,       dec,     returnsym
 };
 
-#define symnum 32
+#define symnum 40
 
 /*名字表中的类型*/
 
