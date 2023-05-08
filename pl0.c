@@ -941,7 +941,8 @@ int statement(bool* fsys,int* ptx,int lev)
 							getsymdo;
 							memcpy(nxtlev,fsys,sizeof(bool)*symnum);
 							statementdo(fsys,ptx,lev);
-							code[cx2].a=cx;
+							code[cx2].a=cx;/*经statementdo处理后，cx为else后语句执行完的位置，
+											 正是无条件跳转指令的目的地址*/
 						}
 						else
 							code[cx1].a=cx;  /*经statement do处理后，cx为then后语句执
