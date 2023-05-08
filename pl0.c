@@ -93,18 +93,19 @@ void init(void)
 	strcpy(&(word[2][0]),"const");
 	strcpy(&(word[3][0]),"do");
 	strcpy(&(word[4][0]),"downto");
-	strcpy(&(word[5][0]),"end");
-	strcpy(&(word[6][0]),"for");
-	strcpy(&(word[7][0]),"if");
-	strcpy(&(word[8][0]),"odd");
-	strcpy(&(word[9][0]),"procedure");
-	strcpy(&(word[10][0]),"read");
-	strcpy(&(word[11][0]),"return");
-	strcpy(&(word[12][0]),"then");
-	strcpy(&(word[13][0]),"to");
-	strcpy(&(word[14][0]),"var");
-	strcpy(&(word[15][0]),"while");
-	strcpy(&(word[16][0]),"write");
+	strcpy(&(word[5][0]),"else");
+	strcpy(&(word[6][0]),"end");
+	strcpy(&(word[7][0]),"for");
+	strcpy(&(word[8][0]),"if");
+	strcpy(&(word[9][0]),"odd");
+	strcpy(&(word[10][0]),"procedure");
+	strcpy(&(word[11][0]),"read");
+	strcpy(&(word[12][0]),"return");
+	strcpy(&(word[13][0]),"then");
+	strcpy(&(word[14][0]),"to");
+	strcpy(&(word[15][0]),"var");
+	strcpy(&(word[16][0]),"while");
+	strcpy(&(word[17][0]),"write");
 
 	/*设置保留字符号*/
 	wsym[0]=beginsym;
@@ -112,18 +113,19 @@ void init(void)
 	wsym[2]=constsym;
 	wsym[3]=dosym;
 	wsym[4]=downtosym;
-	wsym[5]=endsym;
-	wsym[6]=forsym;
-	wsym[7]=ifsym;
-	wsym[8]=oddsym;
-	wsym[9]=procsym;
-	wsym[10]=readsym;
-	wsym[11]=returnsym;
-	wsym[12]=thensym;
-	wsym[13]=tosym;
-	wsym[14]=varsym;
-	wsym[15]=whilesym;
-	wsym[16]=writesym;
+	wsym[5]=elsesym;
+	wsym[6]=endsym;
+	wsym[7]=forsym;
+	wsym[8]=ifsym;
+	wsym[9]=oddsym;
+	wsym[10]=procsym;
+	wsym[11]=readsym;
+	wsym[12]=returnsym;
+	wsym[13]=thensym;
+	wsym[14]=tosym;
+	wsym[15]=varsym;
+	wsym[16]=whilesym;
+	wsym[17]=writesym;
 
 	/*设置指令名称*/
 	strcpy(&(mnemonic[lit][0]),"lit");
@@ -152,6 +154,7 @@ void init(void)
 	statbegsys[beginsym]=true;
 	statbegsys[callsym]=true;
 	statbegsys[ifsym]=true;
+	statbegsys[elsesym]=true;
 	statbegsys[whilesym]=true;
 	statbegsys[forsym]=true;
 
@@ -398,7 +401,7 @@ int getsym()
 						sym=meql; 
 						getchdo;
 					}
-					else if(ch=='+')
+					else if(ch=='-')
 					{
 						sym=dec;
 						getchdo;
@@ -907,8 +910,12 @@ int statement(bool* fsys,int* ptx,int lev)
 				}
 				else
 				{
-					if(sym==ifsym)  /*准备按照if语句处理*/
+					if(sym==ifsym)  /*准备按照if-then-else语句处理*/
 					{
+						/*
+						如果if跟随的条件成立，则执行，跳过else
+						如果不成立，则跳转至else 
+						*/ 
 						getsymdo;
 						memcpy(nxtlev,fsys,sizeof(bool)*symnum);
 						nxtlev[thensym]=true;
@@ -922,10 +929,22 @@ int statement(bool* fsys,int* ptx,int lev)
 						{
 							error(16);  /*缺少then*/
 						}
-						cx1=cx;  /*保存当前指令地址*/
+						cx1=cx;  /*保存当前指令地址*/ 
 						gendo(jpc,0,0);  /*生成条件跳转指令，跳转地址暂写0*/
 						statementdo(fsys,ptx,lev);  /*处理then后的语句*/
-						code[cx1].a=cx;  /*经statement do处理后，cx为then后语句执
+						getsymdo;/*检查是否衔接else指令*/
+						if(sym==elsesym)
+						{
+							cx2=cx;/*保存当前指令地址*/
+							gendo(jmp,0,0);/*生成无条件跳转指令，跳转地址暂写0*/
+							code[cx1].a=cx;
+							getsymdo;
+							memcpy(nxtlev,fsys,sizeof(bool)*symnum);
+							statementdo(fsys,ptx,lev);
+							code[cx2].a=cx;
+						}
+						else
+							code[cx1].a=cx;  /*经statement do处理后，cx为then后语句执
 										   行完的位置，它正是前面未定的跳转地
 										   址*/
 					}
@@ -991,6 +1010,7 @@ int statement(bool* fsys,int* ptx,int lev)
 							}
 						}
 					}
+					
 				}
 			}
 		}
